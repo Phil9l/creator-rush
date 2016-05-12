@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XNA_Game", "XNA_Game\XNA_Game\XNA_Game.csproj", "{07B8D1F3-42A2-4CD1-B42B-BF79E7DCAE26}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "XNA_GameContent", "XNA_Game\XNA_GameContent\XNA_GameContent.contentproj", "{59A6A186-31D2-4EF8-83FB-4450793B69F5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07B8D1F3-42A2-4CD1-B42B-BF79E7DCAE26}.Debug|x86.ActiveCfg = Debug|x86
+		{07B8D1F3-42A2-4CD1-B42B-BF79E7DCAE26}.Debug|x86.Build.0 = Debug|x86
+		{07B8D1F3-42A2-4CD1-B42B-BF79E7DCAE26}.Release|x86.ActiveCfg = Release|x86
+		{07B8D1F3-42A2-4CD1-B42B-BF79E7DCAE26}.Release|x86.Build.0 = Release|x86
+		{59A6A186-31D2-4EF8-83FB-4450793B69F5}.Debug|x86.ActiveCfg = Debug|x86
+		{59A6A186-31D2-4EF8-83FB-4450793B69F5}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
