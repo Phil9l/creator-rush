@@ -11,9 +11,11 @@ using Microsoft.Xna.Framework.Media;
 
 namespace XNA_Game {
     class GameObject {
-        Sprite sprite;
-        string spriteName;
-        Vector2 position;
+        protected Sprite sprite;
+        protected string spriteName;
+        protected Vector2 position;
+
+        public GameObject() { }
 
         public GameObject(string spriteName, Vector2 position) {
             this.spriteName = spriteName;

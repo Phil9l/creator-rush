@@ -54,7 +54,7 @@ namespace XNA_Game {
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch) {
+        public void Draw(SpriteBatch spriteBatch, double angel = 0) {
             spriteBatch.Draw(
                 this.spriteSheet, this.position, 
                 new Rectangle(

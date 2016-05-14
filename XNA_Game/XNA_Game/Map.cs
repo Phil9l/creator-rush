@@ -11,28 +11,39 @@ using Microsoft.Xna.Framework.Media;
 
 namespace XNA_Game {
     class Map {
-        Sprite mainCharacter;
+        public static Vector2 cellSize;
+        public static Vector2 mapSize;
+        public static Vector2 globalSize;
 
-        Vector2 cellSize;
-        Vector2 mapSize;
+        public static Sprite mainCharacter;
+
+        List<Enemy> enemies;
 
         GameObject[,] mapMask;
 
         Vector2 drawDirection;
 
         public Map(Vector2 cellSize, Vector2 mapSize) {
-            this.cellSize = cellSize;
-            this.mapSize = mapSize;
+            Map.cellSize = cellSize;
+            Map.mapSize = mapSize;
+            Map.globalSize = new Vector2(cellSize.X * mapSize.X, cellSize.Y * mapSize.Y);
 
             mapMask = new GameObject[(int)mapSize.X, (int)mapSize.Y];
+            enemies = new List<Enemy>();
         }
 
         public void LoadContent(ContentManager Content) {
-            mapMask[2, 2] = new GameObject("Box", new Vector2(128, 128));
-            mapMask[2, 2].LoadContent(Content);
+            var enemy = new Enemy("Box", new Vector2(cellSize.X * 2, cellSize.Y * 2));
+            enemy.LoadContent(Content);
+            enemies.Add(enemy);
+            mapMask[2, 2] = enemy;
 
             mainCharacter = new Sprite("MainCharacter", new Vector2(300, 300), 4, 4);
             mainCharacter.LoadContent(Content);
+        }
+
+        private void CreateObjectOnMap(int posX, int posY, GameObject obj) {
+
         }
 
         public void UnloadContent() {
@@ -61,8 +72,11 @@ namespace XNA_Game {
             mainCharacter.Move(direction);
 
             drawDirection = direction;
-
             mainCharacter.Update(gameTime);
+
+            foreach (var enemy in enemies) {
+                enemy.Update(gameTime);
+            }
             return true;
         }
 
