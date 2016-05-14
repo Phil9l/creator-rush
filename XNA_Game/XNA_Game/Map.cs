@@ -18,6 +18,8 @@ namespace XNA_Game {
 
         GameObject[,] mapMask;
 
+        Vector2 drawDirection;
+
         public Map(Vector2 cellSize, Vector2 mapSize) {
             this.cellSize = cellSize;
             this.mapSize = mapSize;
@@ -36,37 +38,47 @@ namespace XNA_Game {
         public void UnloadContent() {
         }
 
+        private bool InBounds(int dirX, int dirY) {
+            return (dirX > -1 && dirX < mapMask.GetLength(0)) &&
+                   (dirY > -1 && dirY < mapMask.GetLength(1));
+        }
+
         public bool Update(GameTime gameTime, Vector2 direction) {
             // mapMask[2, 2].Update(gameTime);
             Vector2 newPos = mainCharacter.Position() + direction;
 
-            if (mapMask[(int)(newPos.X / cellSize.X), (int)(newPos.Y / cellSize.Y)] != null ||
-                mapMask[(int)(newPos.X / cellSize.X), (int)((newPos.Y + mainCharacter.Height()) / cellSize.Y)] != null ||
-                mapMask[(int)((newPos.X + mainCharacter.Width()) / cellSize.X), (int)(newPos.Y / cellSize.Y)] != null ||
-                mapMask[(int)((newPos.X + mainCharacter.Width()) / cellSize.X), (int)((newPos.Y + mainCharacter.Height()) / cellSize.Y)] != null
-            ) {
-                return false;
+            var directionX = new double[] { 0.0f, mainCharacter.Width(), mainCharacter.Width(), 0.0f };
+            var directionY = new double[] { 0.0f, mainCharacter.Height(), 0.0f , mainCharacter.Height() };
+
+            for (int i = 0; i < directionX.Count(); i++) {
+                var offsetX = (int)((newPos.X + directionX[i]) / cellSize.X);
+                var offsetY = (int)((newPos.Y + directionY[i]) / cellSize.Y);
+                if (!InBounds(offsetX, offsetY) || mapMask[offsetX, offsetY] != null) {
+                    return false;
+                }
             }
-            
+
             mainCharacter.Move(direction);
 
-            if (direction.X > 0) {
-                mainCharacter.StartOrContinueAnimation(2, 0);
-            } else if (direction.X < 0) {
-                mainCharacter.StartOrContinueAnimation(1, 0);
-            } else if (direction.Y < 0) {
-                mainCharacter.StartOrContinueAnimation(3, 0);
-            } else if (direction.Y > 0) {
-                mainCharacter.StartOrContinueAnimation(0, 0);
-            } else {
-                mainCharacter.StopAnimation();
-            }
+            drawDirection = direction;
 
             mainCharacter.Update(gameTime);
             return true;
         }
 
         public void Draw(SpriteBatch spriteBatch) {
+            if (drawDirection.X > 0) {
+                mainCharacter.StartOrContinueAnimation(2, 0);
+            } else if (drawDirection.X < 0) {
+                mainCharacter.StartOrContinueAnimation(1, 0);
+            } else if (drawDirection.Y < 0) {
+                mainCharacter.StartOrContinueAnimation(3, 0);
+            } else if (drawDirection.Y > 0) {
+                mainCharacter.StartOrContinueAnimation(0, 0);
+            } else {
+                mainCharacter.StopAnimation();
+            }
+
             mapMask[2, 2].Draw(spriteBatch);
             mainCharacter.Draw(spriteBatch);
         }
