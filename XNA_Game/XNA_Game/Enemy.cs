@@ -32,8 +32,8 @@ namespace XNA_Game {
             dirCellX = new float[] { 0, Map.cellSize.X, 0, -Map.cellSize.X };
             dirCellY = new float[] { Map.cellSize.Y, 0, -Map.cellSize.Y, 0 };
             
-            directionX = new int[] { 0, 1, 0, -1 };
-            directionY = new int[] { 1, 0, -1, 0 };
+            directionX = new int[] { 0, 1, 1, 1, 0, -1, -1, -1 };
+            directionY = new int[] { 1, 1, 0, -1, -1, -1, 0, 1 };
 
             bfsQueue = new Queue<Vector2>();
         }
@@ -43,10 +43,12 @@ namespace XNA_Game {
             sprite.LoadContent(content);
         }
 
-        public void Update(GameTime gameTime) {
+        public bool Update(GameTime gameTime) {
+            var curCellPos = GlobalToCellCoord(sprite.Position());
             var nextStep = FindMainCharacter(Map.mainCharacter.Position());
             sprite.Move(nextStep);
             sprite.Update(gameTime);
+            return true;
         }
 
         public void Draw(SpriteBatch spriteBatch) {
@@ -66,12 +68,12 @@ namespace XNA_Game {
             while (bfsQueue.Count != 0) {
                 var current = bfsQueue.Peek();
 
-                if (finded) break;
+                if (finded || current == mcCellPos) break;
 
                 bfsQueue.Dequeue();
                 used[(int)current.X, (int)current.Y] = true;
 
-                for (int i = 0; i < dirCellX.Count(); i++) {
+                for (int i = 0; i < directionX.Count(); i++) {
                     var newPos = current + new Vector2(directionX[i], directionY[i]);
                     if (InBounds(newPos) && !used[(int)newPos.X, (int)newPos.Y]) {
                         used[(int)newPos.X, (int)newPos.Y] = true;
@@ -88,7 +90,7 @@ namespace XNA_Game {
 
             var nextCell = FindGoingCell(vectorParent, mcCellPos, GlobalToCellCoord(sprite.Position()));
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < directionX.Count(); i++) {
                 var offset = new Vector2(directionX[i], directionY[i]);
                 if (nextCell == GlobalToCellCoord(sprite.Position()) + offset) {
                     return offset;
@@ -98,10 +100,10 @@ namespace XNA_Game {
         }
 
         private Vector2 FindGoingCell(Dictionary<Vector2, Vector2> dir, Vector2 start, Vector2 end) {
-            var prev = new Vector2();
+            var prev = start;
             while (start != end) {
-               prev = start;
-               start = dir[start];
+                prev = start;
+                start = dir[start];
             }
             return prev;
         }

@@ -16,10 +16,9 @@ namespace XNA_Game {
         public static Vector2 globalSize;
 
         public static Sprite mainCharacter;
+        public static GameObject[,] mapMask;
 
         List<Enemy> enemies;
-
-        GameObject[,] mapMask;
 
         Vector2 drawDirection;
 
@@ -36,7 +35,6 @@ namespace XNA_Game {
             var enemy = new Enemy("Box", new Vector2(cellSize.X * 2, cellSize.Y * 2));
             enemy.LoadContent(Content);
             enemies.Add(enemy);
-            mapMask[2, 2] = enemy;
 
             mainCharacter = new Sprite("MainCharacter", new Vector2(300, 300), 4, 4);
             mainCharacter.LoadContent(Content);
@@ -50,8 +48,8 @@ namespace XNA_Game {
         }
 
         private bool InBounds(int dirX, int dirY) {
-            return (dirX > -1 && dirX < mapMask.GetLength(0)) &&
-                   (dirY > -1 && dirY < mapMask.GetLength(1));
+            return (dirX > 0 && dirX < mapMask.GetLength(0)) &&
+                   (dirY > 0 && dirY < mapMask.GetLength(1));
         }
 
         public bool Update(GameTime gameTime, Vector2 direction) {
@@ -64,7 +62,7 @@ namespace XNA_Game {
             for (int i = 0; i < directionX.Count(); i++) {
                 var offsetX = (int)((newPos.X + directionX[i]) / cellSize.X);
                 var offsetY = (int)((newPos.Y + directionY[i]) / cellSize.Y);
-                if (!InBounds(offsetX, offsetY) || mapMask[offsetX, offsetY] != null) {
+                if (!InBounds(offsetX, offsetY)) {
                     return false;
                 }
             }
@@ -93,7 +91,7 @@ namespace XNA_Game {
                 mainCharacter.StopAnimation();
             }
 
-            mapMask[2, 2].Draw(spriteBatch);
+            enemies[0].Draw(spriteBatch);
             mainCharacter.Draw(spriteBatch);
         }
     }
