@@ -34,5 +34,12 @@ namespace XNA_Game {
         public void Draw(SpriteBatch spriteBatch) {
             sprite.Draw(spriteBatch);
         }
+
+        public bool IsIntersected(GameObject other) {
+            var bounds = new Rectangle((int)(sprite.Position().X - sprite.Width() / 2), (int)(sprite.Position().Y - sprite.Height() / 2), (int)sprite.Width(), (int)sprite.Height());
+            var otherBounds = new Rectangle((int)(other.sprite.Position().X - other.sprite.Width() / 2), (int)(other.sprite.Position().Y - other.sprite.Height() / 2), (int)other.sprite.Width(), (int)other.sprite.Height());
+
+            return bounds.Intersects(otherBounds);
+        }
     }
 }

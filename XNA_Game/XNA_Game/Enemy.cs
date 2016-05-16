@@ -22,37 +22,47 @@ namespace XNA_Game {
         int[] directionX;
         int[] directionY;
 
+        Vector2 nextGoingCell;
+        Vector2 direction;
+        bool inTransit = false;
+        int rageDistance;
+
         //queue for bfs
         Queue<Vector2> bfsQueue;
 
-        public Enemy(string spriteName, Vector2 position) {
+        public Enemy(string spriteName, Vector2 position, int rageDistance) {
             this.spriteName = spriteName;
             this.position = position;
+            this.rageDistance = rageDistance;
             
             dirCellX = new float[] { 0, Map.cellSize.X, 0, -Map.cellSize.X };
             dirCellY = new float[] { Map.cellSize.Y, 0, -Map.cellSize.Y, 0 };
             
-            directionX = new int[] { 0, 1, 1, 1, 0, -1, -1, -1 };
-            directionY = new int[] { 1, 1, 0, -1, -1, -1, 0, 1 };
+            directionX = new int[] { 0, 1, 1, 0, -1, -1, -1 };
+            directionY = new int[] { 1, 0, -1, -1, -1, 0, 1 };
 
             bfsQueue = new Queue<Vector2>();
         }
 
-        public void LoadContent(ContentManager content) {
-            sprite = new Sprite(spriteName, position);
-            sprite.LoadContent(content);
-        }
-
         public bool Update(GameTime gameTime) {
             var curCellPos = GlobalToCellCoord(sprite.Position());
-            var nextStep = FindMainCharacter(Map.mainCharacter.Position());
-            sprite.Move(nextStep);
+
+            if (Vector2.Distance(sprite.Position(), Map.mainCharacter.Position()) < rageDistance) {
+                if (!inTransit) {
+                    var nextStep = FindMainCharacter(Map.mainCharacter.Position());
+                    direction = CellCoordToDirection(nextStep);
+                    nextGoingCell = nextStep;
+                    inTransit = true;
+                } else {
+                    if (sprite.Position() + Map.cellSize / 2 != CellCoordToGlobal(nextGoingCell)) {
+                        sprite.Move(direction);
+                    } else {
+                        inTransit = false;
+                    }
+                }
+            }
             sprite.Update(gameTime);
             return true;
-        }
-
-        public void Draw(SpriteBatch spriteBatch) {
-            sprite.Draw(spriteBatch);
         }
 
         private Vector2 FindMainCharacter(Vector2 mainCharacterPos) {
@@ -61,6 +71,7 @@ namespace XNA_Game {
             bool[,] used = new bool[(int)Map.globalSize.X, (int)Map.globalSize.Y];
             bool finded = false;
 
+            var spritePosition = GlobalToCellCoord(sprite.Position());
             var mcCellPos = GlobalToCellCoord(mainCharacterPos);
 
             bfsQueue.Enqueue(GlobalToCellCoord(sprite.Position()));
@@ -75,7 +86,7 @@ namespace XNA_Game {
 
                 for (int i = 0; i < directionX.Count(); i++) {
                     var newPos = current + new Vector2(directionX[i], directionY[i]);
-                    if (InBounds(newPos) && !used[(int)newPos.X, (int)newPos.Y]) {
+                    if (InBounds(newPos) && !used[(int)newPos.X, (int)newPos.Y] && Map.mapMask[(int)newPos.X, (int)newPos.Y] == null) {
                         used[(int)newPos.X, (int)newPos.Y] = true;
                         bfsQueue.Enqueue(newPos);
                         vectorParent[newPos] = current;
@@ -88,15 +99,16 @@ namespace XNA_Game {
             }
             bfsQueue.Clear();
 
-            var nextCell = FindGoingCell(vectorParent, mcCellPos, GlobalToCellCoord(sprite.Position()));
+            var nextCell = FindGoingCell(vectorParent, mcCellPos, spritePosition);
 
-            for (int i = 0; i < directionX.Count(); i++) {
+            /*for (int i = 0; i < directionX.Count(); i++) {
                 var offset = new Vector2(directionX[i], directionY[i]);
-                if (nextCell == GlobalToCellCoord(sprite.Position()) + offset) {
+                if (nextCell == spritePosition + offset) {
                     return offset;
                 }
-            }
-            return new Vector2(0, 0);
+            }*/
+            return nextCell;
+            //return new Vector2(0, 0);
         }
 
         private Vector2 FindGoingCell(Dictionary<Vector2, Vector2> dir, Vector2 start, Vector2 end) {
@@ -113,7 +125,21 @@ namespace XNA_Game {
         }
 
         private Vector2 GlobalToCellCoord(Vector2 pos) {
-            return new Vector2((int)(pos.X / Map.cellSize.X), (int)(pos.Y / Map.cellSize.Y));
+            return new Vector2((int)((pos.X + Map.cellSize.X / 2) / Map.cellSize.X), (int)((pos.Y + Map.cellSize.Y / 2 )/ Map.cellSize.Y));
+        }
+
+        private Vector2 CellCoordToGlobal(Vector2 pos) {
+            return new Vector2((int)(pos.X * Map.cellSize.X + Map.cellSize.X / 2), (pos.Y * Map.cellSize.Y + Map.cellSize.Y / 2));
+        }
+
+        private Vector2 CellCoordToDirection(Vector2 pos) {
+            for (int i = 0; i < directionX.Count(); i++) {
+                var offset = new Vector2(directionX[i], directionY[i]);
+                if (pos == GlobalToCellCoord(sprite.Position()) + offset) {
+                    return offset;
+                }
+            }
+            return new Vector2(0, 0);
         }
     }
 }

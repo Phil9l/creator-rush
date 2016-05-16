@@ -17,6 +17,7 @@ namespace XNA_Game.Scenes {
 
         public override void LoadContent(ContentManager Content) {
             base.LoadContent(Content);
+            keyState = Keyboard.GetState();
             camera = new Vector2(0, 0);
             map = new Map(new Vector2(64, 64), new Vector2(100, 100));
             map.LoadContent(Content);
@@ -28,8 +29,13 @@ namespace XNA_Game.Scenes {
         }
 
         public override void Update(GameTime gameTime) {
-            keyState = Keyboard.GetState();
-            
+            var newKeyState = Keyboard.GetState();
+
+            if (keyState.IsKeyUp(Keys.Space) && newKeyState.IsKeyDown(Keys.Space)) {
+                map.Shoot();
+            }
+
+            keyState = newKeyState;
             Vector2 direction = new Vector2(0, 0);
             direction.X = 2 * (Convert.ToInt32(keyState.IsKeyDown(Keys.Right)) - Convert.ToInt32(keyState.IsKeyDown(Keys.Left)));
             direction.Y = 2 * (Convert.ToInt32(keyState.IsKeyDown(Keys.Down)) - Convert.ToInt32(keyState.IsKeyDown(Keys.Up)));
