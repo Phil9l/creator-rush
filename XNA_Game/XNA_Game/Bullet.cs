@@ -19,12 +19,16 @@ namespace XNA_Game {
         float totalTime;
 
         public bool IsAlive { get; set; }
+        public int Damage { get; }
+        public bool DamagesPlayer { get; }
 
-        public Bullet(string spriteName, Vector2 position, Vector2 speed, int liveTime) : base(spriteName, position) {
+        public Bullet(string spriteName, Vector2 position, Vector2 speed, int liveTime, int damage, bool damagesPlayer=false) : base(spriteName, position) {
             this.liveTime = liveTime;
             this.speed = speed;
             this.totalTime = 0;
             this.IsAlive = true;
+            this.Damage = damage;
+            this.DamagesPlayer = damagesPlayer;
         }
 
         public void Update(GameTime gameTime) {

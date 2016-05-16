@@ -27,13 +27,17 @@ namespace XNA_Game {
         bool inTransit = false;
         int rageDistance;
 
+        public int HP { get; set; }
+        public bool IsAlive { get { return HP > 0;  } }
+
         //queue for bfs
         Queue<Vector2> bfsQueue;
 
-        public Enemy(string spriteName, Vector2 position, int rageDistance) {
+        public Enemy(string spriteName, Vector2 position, int HP, int rageDistance) {
             this.spriteName = spriteName;
             this.position = position;
             this.rageDistance = rageDistance;
+            this.HP = HP;
             
             dirCellX = new float[] { 0, Map.cellSize.X, 0, -Map.cellSize.X };
             dirCellY = new float[] { Map.cellSize.Y, 0, -Map.cellSize.Y, 0 };
