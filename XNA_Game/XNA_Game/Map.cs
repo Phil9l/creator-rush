@@ -142,5 +142,45 @@ namespace XNA_Game {
             }
             mapMask[4, 5].Draw(spriteBatch);
         }
+
+        public static bool IsWayClear(Vector2 start, Vector2 finish) {
+            var edge = new Edge(start + cellSize / 2, finish);
+            for (int i = 0; i < mapSize.X; i++) {
+                for (int j = 0; j < mapSize.Y; j++) {
+                    if (IsSquareCrossed(edge, new Vector2(i, j)) && mapMask[i, j] != null) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private static bool IsSquareCrossed(Edge curEdge, Vector2 squareIndex) {
+            Vector2 p = squareIndex * cellSize;
+            var edgeList = new List<Edge>();
+            edgeList.Add(new Edge(p, new Vector2(p.X, p.Y + cellSize.Y)));
+            edgeList.Add(new Edge(p, new Vector2(p.X + cellSize.X, p.Y)));
+            edgeList.Add(new Edge(new Vector2(p.X + cellSize.X, p.Y), p + cellSize));
+            edgeList.Add(new Edge(new Vector2(p.X, p.Y + cellSize.Y), p + cellSize));
+
+            foreach (var edge in edgeList) {
+                if (IsSegmentCrossed(curEdge, edge)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool IsSegmentCrossed(Edge e1, Edge e2) {
+            if (CrossProduct(e2.st - e1.st, e2.fn - e2.st) * CrossProduct(e2.st - e1.fn, e2.fn - e1.fn) <= 0
+                && CrossProduct(e1.st - e2.st, e1.fn - e2.st) * CrossProduct(e1.st - e2.fn, e1.fn - e2.fn) <= 0) {
+                return true;
+            }
+            return false;
+        }
+
+        private static double CrossProduct(Vector2 s1, Vector2 s2) {
+            return s1.X * s2.Y - s1.Y * s2.X;
+        }
     }
 }
