@@ -25,19 +25,26 @@ namespace XNA_Game {
         Vector2 nextGoingCell;
         Vector2 direction;
         bool inTransit = false;
-        int rageDistance;
 
         public int HP { get; set; }
         public override bool IsAlive { get { return HP > 0; } set { } }
+        public double Visibility { get; set; }
+        public double ShootDistance { get; set; }
+
+        Map map;
+        int shootPeriod = 15;
+        int currentShootTime = 0;
 
         //queue for bfs
         Queue<Vector2> bfsQueue;
 
-        public Enemy(string spriteName, Vector2 position, int HP, int rageDistance) : base(spriteName, position) {
+        public Enemy(string spriteName, Vector2 position, int HP, int rageDistance, double visibility, double shootDistance, Map map) : base(spriteName, position) {
             this.spriteName = spriteName;
             this.position = position;
-            this.rageDistance = rageDistance;
             this.HP = HP;
+            this.Visibility = visibility;
+            this.ShootDistance = shootDistance;
+            this.map = map;
             
             dirCellX = new float[] { 0, Map.cellSize.X, 0, -Map.cellSize.X };
             dirCellY = new float[] { Map.cellSize.Y, 0, -Map.cellSize.Y, 0 };
@@ -49,13 +56,26 @@ namespace XNA_Game {
         }
 
         public Bullet Shoot(int liveTime, int damage) {
-            return new Bullet("Bullet", sprite.Position(), /* direction */ new Vector2(10, 0), liveTime, damage);
+            var dir = Map.player.Position() - sprite.Position();
+            if (dir.Length() > Visibility) {
+                return null;
+            }
+            dir /= dir.Length();
+            return new Bullet("Bullet", sprite.Position(), /* direction */ dir, liveTime, damage, true);
         }
 
         public bool Update(GameTime gameTime) {
             var curCellPos = GlobalToCellCoord(sprite.Position());
+            var enemyPlayerDistance = Vector2.Distance(sprite.Position(), Map.player.Position());
 
-            if (Vector2.Distance(sprite.Position(), Map.player.Position()) < rageDistance) {
+            if (enemyPlayerDistance < Visibility && Map.IsWayClear(sprite.Position(), Map.player.Position())) {
+                if (currentShootTime == shootPeriod)
+                    map.EnemyShoot(this);
+                currentShootTime++;
+                currentShootTime %= (shootPeriod + 1);
+            }
+
+            if (enemyPlayerDistance < Visibility && enemyPlayerDistance > ShootDistance) {
                 if (!inTransit) {
                     var nextStep = FindMainCharacter(Map.player.Position());
                     direction = CellCoordToDirection(nextStep);

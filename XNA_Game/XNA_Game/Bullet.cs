@@ -19,8 +19,8 @@ namespace XNA_Game {
         float totalTime;
 
         public override bool IsAlive { get; set; }
-        public int Damage { get; }
-        public bool DamagesPlayer { get; }
+        public int Damage { get; private set; }
+        public bool DamagesPlayer { get; private set; }
 
         public Bullet(string spriteName, Vector2 position, Vector2 speed, int liveTime, int damage, bool damagesPlayer=false) : base(spriteName, position) {
             this.liveTime = liveTime;

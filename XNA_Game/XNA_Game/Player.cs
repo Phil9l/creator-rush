@@ -17,7 +17,7 @@ namespace XNA_Game {
         Vector2 drawDirection;
 
         public override bool IsAlive { get { return HP > 0; } set { } }
-        public int Damage { get; }
+        public int Damage { get; private set; }
         public int HP { get; set; }
 
         public Player(string spriteName, Vector2 position, int HP) : base(spriteName, position, 4, 4) {

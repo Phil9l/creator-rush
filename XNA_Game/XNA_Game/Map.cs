@@ -27,7 +27,7 @@ namespace XNA_Game {
 
         public static GameObject[,] mapMask;
 
-        List<Bullet> bullets;
+        public static List<Bullet> bullets;
         List<Enemy> enemies;
         
         public static Player player { get; set; }
@@ -50,10 +50,10 @@ namespace XNA_Game {
             player = new Player("MainCharacter", new Vector2(300, 200), 100);
             player.LoadContent(Content);
 
-            var enemy1 = new Enemy("Enemy", new Vector2(cellSize.X * 4, cellSize.Y * 6), 100, 500);
+            var enemy1 = new Enemy("Enemy", new Vector2(cellSize.X * 4, cellSize.Y * 6), 100, 500, 250, 150, this);
             enemy1.LoadContent(Content);
 
-            var enemy2 = new Enemy("Enemy", new Vector2(cellSize.X * 8, cellSize.Y * 4), 50, 300);
+            var enemy2 = new Enemy("Enemy", new Vector2(cellSize.X * 8, cellSize.Y * 4), 50, 300, 250, 150, this);
             enemy2.LoadContent(Content);
 
             enemies.Add(enemy1);
@@ -74,8 +74,14 @@ namespace XNA_Game {
         public void UnloadContent() {
         }
 
-        public void Shoot() {
-            var bullet = player.Shoot(5000, 20);
+        public void PlayerShoot() {
+            var playerBullet = player.Shoot(5000, 20);
+            playerBullet.LoadContent(content);
+            bullets.Add(playerBullet);
+        }
+
+        public void EnemyShoot(Enemy enemy) {
+            var bullet = enemy.Shoot(5000, 20);
             bullet.LoadContent(content);
             bullets.Add(bullet);
         }

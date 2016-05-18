@@ -32,7 +32,7 @@ namespace XNA_Game.Scenes {
             var newKeyState = Keyboard.GetState();
 
             if (keyState.IsKeyUp(Keys.Space) && newKeyState.IsKeyDown(Keys.Space)) {
-                map.Shoot();
+                map.PlayerShoot();
             }
 
             keyState = newKeyState;
