@@ -10,6 +10,16 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 namespace XNA_Game {
+    class Edge {
+        public Vector2 st;
+        public Vector2 fn;
+
+        public Edge(Vector2 s, Vector2 f) {
+            st = s;
+            fn = f;
+        }
+    }
+
     class Map {
         public static Vector2 cellSize;
         public static Vector2 mapSize;
