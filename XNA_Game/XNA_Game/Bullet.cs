@@ -18,7 +18,7 @@ namespace XNA_Game {
 
         float totalTime;
 
-        public bool IsAlive { get; set; }
+        public override bool IsAlive { get; set; }
         public int Damage { get; }
         public bool DamagesPlayer { get; }
 

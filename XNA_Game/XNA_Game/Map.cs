@@ -15,13 +15,12 @@ namespace XNA_Game {
         public static Vector2 mapSize;
         public static Vector2 globalSize;
 
-        public static Sprite mainCharacter;
         public static GameObject[,] mapMask;
 
         List<Bullet> bullets;
         List<Enemy> enemies;
-        Vector2 drawDirection;
-        Vector2 currentPlayerDirection;
+        
+        public static Player player { get; set; }
 
         ContentManager content;
 
@@ -38,21 +37,24 @@ namespace XNA_Game {
         public void LoadContent(ContentManager Content) {
             content = Content;
 
-            var enemy1 = new Enemy("Enemy", new Vector2(cellSize.X * 4, cellSize.Y * 6), 500);
+            player = new Player("MainCharacter", new Vector2(300, 200), 100);
+            player.LoadContent(Content);
+
+            var enemy1 = new Enemy("Enemy", new Vector2(cellSize.X * 4, cellSize.Y * 6), 100, 500);
             enemy1.LoadContent(Content);
 
-            var enemy2 = new Enemy("Enemy", new Vector2(cellSize.X * 8, cellSize.Y * 4), 300);
+            var enemy2 = new Enemy("Enemy", new Vector2(cellSize.X * 8, cellSize.Y * 4), 50, 300);
             enemy2.LoadContent(Content);
 
             enemies.Add(enemy1);
             enemies.Add(enemy2);
             
-            var box = new GameObject("Box", new Vector2(cellSize.X * 4, cellSize.Y * 5));
+            var box = new StaticOject("Box", new Vector2(cellSize.X * 4, cellSize.Y * 5));
             box.LoadContent(Content);
             mapMask[4, 5] = box;
 
-            mainCharacter = new Sprite("MainCharacter", new Vector2(300, 200), 4, 4);
-            mainCharacter.LoadContent(Content);
+            //mainCharacter = new Sprite("MainCharacter", new Vector2(300, 200), 4, 4);
+            //mainCharacter.LoadContent(Content);
         }
 
         private void CreateObjectOnMap(int posX, int posY, GameObject obj) {
@@ -63,78 +65,75 @@ namespace XNA_Game {
         }
 
         public void Shoot() {
-            var bullet = new Bullet("Bullet", mainCharacter.Position(), currentPlayerDirection, 5000);
+            var bullet = player.Shoot(5000, 20);
             bullet.LoadContent(content);
             bullets.Add(bullet);
         }
 
-        private bool InBounds(int dirX, int dirY) {
+        static bool InBounds(int dirX, int dirY) {
             return (dirX > 0 && dirX < mapMask.GetLength(0)) &&
                    (dirY > 0 && dirY < mapMask.GetLength(1));
         }
 
-        public void DeleteDeadBullets() {
+        public static bool IsCellFree(Vector2 position) {
+            var dirX = (int)(position.X / cellSize.X);
+            var dirY = (int)(position.Y / cellSize.Y);
+
+            if (!InBounds(dirX, dirY) || mapMask[dirX, dirY] != null) {
+                return false;
+            }
+            return true;
+        }
+
+        public void DeleteDeadObjects() {
+
+            // TODO: pass array as argument
+
             for (var i = bullets.Count - 1; i >= 0; i--) {
                 if (!bullets[i].IsAlive) {
                     bullets.RemoveAt(i);
+                }
+            }
+            for (var i = enemies.Count - 1; i >= 0; i--) {
+                if (!enemies[i].IsAlive) {
+                    enemies.RemoveAt(i);
                 }
             }
         }
 
         public bool Update(GameTime gameTime, Vector2 direction) {
             // mapMask[2, 2].Update(gameTime);
-            DeleteDeadBullets();
-            Vector2 newPos = mainCharacter.Position() + direction;
-
-            if (direction != Vector2.Zero) {
-                currentPlayerDirection = direction;
-            }
-
-            var directionX = new double[] { 0.0f, mainCharacter.Width(), mainCharacter.Width(), 0.0f };
-            var directionY = new double[] { 0.0f, mainCharacter.Height(), 0.0f , mainCharacter.Height() };
-
+            DeleteDeadObjects();
+      
             foreach (var enemy in enemies) {
                 enemy.Update(gameTime);
-
-                foreach (var bullet in bullets) {
-                    bullet.IsAlive &= !enemy.IsIntersected(bullet);
-                }
             }
             foreach (var bullet in bullets) {
                 bullet.Update(gameTime);
+
+                if (bullet.DamagesPlayer) {
+                    if (player.IsIntersected(bullet)) {
+                        player.HP -= bullet.Damage;
+                        bullet.IsAlive = false;
+                    }
+                    continue;
+                }
+                foreach (var enemy in enemies) {
+                    if (enemy.IsIntersected(bullet)) {
+                        enemy.HP -= bullet.Damage;
+                        bullet.IsAlive = false;
+                    }
+                }
             }
 
             mapMask[4, 5].Update(gameTime);
 
-            for (int i = 0; i < directionX.Count(); i++) {
-                var offsetX = (int)((newPos.X + directionX[i]) / cellSize.X);
-                var offsetY = (int)((newPos.Y + directionY[i]) / cellSize.Y);
-                if (!InBounds(offsetX, offsetY) || mapMask[offsetX, offsetY] != null) {
-                    return false;
-                }
-            }
 
-            mainCharacter.Move(direction);
-
-            drawDirection = direction;
-
-            mainCharacter.Update(gameTime);
-            return true;
+            return player.Update(gameTime, direction);
         }
 
         public void Draw(SpriteBatch spriteBatch) {
-            if (drawDirection.X > 0) {
-                mainCharacter.StartOrContinueAnimation(2, 0);
-            } else if (drawDirection.X < 0) {
-                mainCharacter.StartOrContinueAnimation(1, 0);
-            } else if (drawDirection.Y < 0) {
-                mainCharacter.StartOrContinueAnimation(3, 0);
-            } else if (drawDirection.Y > 0) {
-                mainCharacter.StartOrContinueAnimation(0, 0);
-            } else {
-                mainCharacter.StopAnimation();
-            }
-
+            player.Draw(spriteBatch);
             foreach (var enemy in enemies) {
                 enemy.Draw(spriteBatch);
             }
@@ -142,7 +141,6 @@ namespace XNA_Game {
                 bullet.Draw(spriteBatch);
             }
             mapMask[4, 5].Draw(spriteBatch);
-            mainCharacter.Draw(spriteBatch);
         }
     }
 }

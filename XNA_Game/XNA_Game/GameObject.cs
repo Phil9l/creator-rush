@@ -10,20 +10,27 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 namespace XNA_Game {
-    class GameObject {
+    abstract class GameObject {
         protected Sprite sprite;
         protected string spriteName;
         protected Vector2 position;
 
+        int spriteWidth;
+        int spriteHeight;
+
+        public abstract bool IsAlive { get; set; }
+
         public GameObject() { }
 
-        public GameObject(string spriteName, Vector2 position) {
+        public GameObject(string spriteName, Vector2 position, int spriteWidth=1, int spriteHeight=1) {
             this.spriteName = spriteName;
             this.position = position;
+            this.spriteWidth = spriteWidth;
+            this.spriteHeight = spriteHeight;
         }
 
         public void LoadContent(ContentManager Content) {
-            sprite = new Sprite(spriteName, position);
+            sprite = new Sprite(spriteName, position, spriteWidth, spriteHeight);
             sprite.LoadContent(Content);
         }
 

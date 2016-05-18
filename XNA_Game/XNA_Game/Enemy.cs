@@ -28,12 +28,12 @@ namespace XNA_Game {
         int rageDistance;
 
         public int HP { get; set; }
-        public bool IsAlive { get { return HP > 0;  } }
+        public override bool IsAlive { get { return HP > 0; } set { } }
 
         //queue for bfs
         Queue<Vector2> bfsQueue;
 
-        public Enemy(string spriteName, Vector2 position, int HP, int rageDistance) {
+        public Enemy(string spriteName, Vector2 position, int HP, int rageDistance) : base(spriteName, position) {
             this.spriteName = spriteName;
             this.position = position;
             this.rageDistance = rageDistance;
@@ -48,12 +48,16 @@ namespace XNA_Game {
             bfsQueue = new Queue<Vector2>();
         }
 
+        public Bullet Shoot(int liveTime, int damage) {
+            return new Bullet("Bullet", sprite.Position(), /* direction */ new Vector2(10, 0), liveTime, damage);
+        }
+
         public bool Update(GameTime gameTime) {
             var curCellPos = GlobalToCellCoord(sprite.Position());
 
-            if (Vector2.Distance(sprite.Position(), Map.mainCharacter.Position()) < rageDistance) {
+            if (Vector2.Distance(sprite.Position(), Map.player.Position()) < rageDistance) {
                 if (!inTransit) {
-                    var nextStep = FindMainCharacter(Map.mainCharacter.Position());
+                    var nextStep = FindMainCharacter(Map.player.Position());
                     direction = CellCoordToDirection(nextStep);
                     nextGoingCell = nextStep;
                     inTransit = true;
