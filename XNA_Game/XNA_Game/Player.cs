@@ -33,6 +33,9 @@ namespace XNA_Game {
         }
 
         public bool Update(GameTime gameTime, Vector2 direction) {
+            if (HP <= 0) {
+                // TODO change scene
+            }
             Vector2 newPos = sprite.Position() + direction;
 
             if (direction != Vector2.Zero) {

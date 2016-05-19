@@ -19,7 +19,7 @@ namespace XNA_Game.Scenes {
             base.LoadContent(Content);
             keyState = Keyboard.GetState();
             camera = new Vector2(0, 0);
-            map = new Map(new Vector2(64, 64), new Vector2(100, 100));
+            map = new Map(new Vector2(64, 64), new Vector2(20, 20));
             map.LoadContent(Content);
         }
 

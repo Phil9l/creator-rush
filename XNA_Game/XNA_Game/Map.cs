@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using Newtonsoft.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -17,6 +18,18 @@ namespace XNA_Game {
         public Edge(Vector2 s, Vector2 f) {
             st = s;
             fn = f;
+        }
+    }
+
+    class JsonGameObject {
+        public int x;
+        public int y;
+        public string texture;
+
+        public JsonGameObject(string texture, int x, int y) {
+            this.texture = texture;
+            this.x = x;
+            this.y = y;
         }
     }
 
@@ -50,21 +63,31 @@ namespace XNA_Game {
             player = new Player("MainCharacter", new Vector2(300, 200), 100);
             player.LoadContent(Content);
 
-            var enemy1 = new Enemy("Enemy", new Vector2(cellSize.X * 4, cellSize.Y * 6), 100, 500, 250, 150, this);
+            var enemy1 = new Enemy("Enemy", cellSize * new Vector2(4, 6), 100, 500, 250, 150, this);
             enemy1.LoadContent(Content);
 
-            var enemy2 = new Enemy("Enemy", new Vector2(cellSize.X * 8, cellSize.Y * 4), 50, 300, 250, 150, this);
+            var enemy2 = new Enemy("Enemy", cellSize * new Vector2(8, 4), 50, 300, 250, 150, this);
             enemy2.LoadContent(Content);
 
             enemies.Add(enemy1);
             enemies.Add(enemy2);
             
-            var box = new StaticOject("Box", new Vector2(cellSize.X * 4, cellSize.Y * 5));
-            box.LoadContent(Content);
-            mapMask[4, 5] = box;
+            //var box = new StaticOject("Box", cellSize * new Vector2(4, 5));
+            //box.LoadContent(Content);
+            //mapMask[4, 5] = box;
 
+            SetStaticMapObject(File.ReadAllText("map.json"));
             //mainCharacter = new Sprite("MainCharacter", new Vector2(300, 200), 4, 4);
             //mainCharacter.LoadContent(Content);
+        }
+
+        private void SetStaticMapObject(string json) {
+            foreach (var item in JsonConvert.DeserializeObject<JsonGameObject[]>(json)) {
+                var mapItem = new StaticOject(item.texture, cellSize * new Vector2(item.x, item.y));
+                mapItem.LoadContent(content);
+                mapMask[item.x, item.y] = mapItem;
+            }
+
         }
 
         private void CreateObjectOnMap(int posX, int posY, GameObject obj) {
